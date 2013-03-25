@@ -17,7 +17,7 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class Server
+public class Server extends Thread
 {
     private ServerSocket serverSocket;
     private Socket socket;
@@ -51,6 +51,7 @@ public class Server
      * This method is used to start the server and perform a single
      * interaction with a single client using the processHello method.
      */
+    @Override
     public void run()
     {
         try
