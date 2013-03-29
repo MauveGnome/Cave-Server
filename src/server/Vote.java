@@ -1,6 +1,6 @@
 package server;
 
-import java.util.Set;
+import java.util.*;
 
 /**
  * Vote.class
@@ -13,10 +13,32 @@ import java.util.Set;
 public class Vote {
     
     String question;
-    Set<String> answers;
+    Map<String, Integer> answers;
     
     public Vote(String newQuestion) {
+        question = newQuestion;
+        answers = new HashMap<String, Integer>();
         
+        //Test Data
+        addAnswer("Option A");
+        addAnswer("Option B");
+        addAnswer("Option C");
+    }
+    
+    /**
+     * Adds a new answer.
+     * @param newAnswer 
+     */
+    public void addAnswer(String newAnswer) {
+        answers.put(newAnswer, 0);
+    }
+    
+    /**
+     * Increments an answer.
+     * @param answer 
+     */
+    public void voteOnAnswer(String currentVote) {
+        answers.put(currentVote, answers.get(currentVote) + 1);
     }
     
 }

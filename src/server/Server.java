@@ -16,6 +16,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.*;
 
 public class Server extends Thread
 {
@@ -27,12 +28,19 @@ public class Server extends Thread
     // use a high numbered non-dedicated port
     private static final int PORT_NUMBER = 3000;
     private static final String MESSAGE_TO_CLIENT = "Hello client. This is the server.";
+    private Set<Vote> votes;
 
     /*
      * Constructor
      */
     public Server()
     {
+        //Test vote collection.
+        votes = new HashSet<Vote>();
+        votes.add(new Vote("Issue 1"));
+        votes.add(new Vote("Issue 2"));
+        votes.add(new Vote("Issue 3"));
+        
         System.out.println("...Server starting up");
 
         try
@@ -105,6 +113,13 @@ public class Server extends Thread
         toClient.close();
         os.close();
         System.out.println("...Streams closed down");
+    }
+    
+    /**
+     * Returns the vote collection.
+     */
+    public Set<Vote> getVotes() {
+        return votes;
     }
 }
 
