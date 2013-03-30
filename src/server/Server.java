@@ -11,24 +11,26 @@ package server;
  * @author Sam Beed B0632953
  */
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.net.ServerSocket;
-import java.net.Socket;
+import java.io.*;
+import java.net.*;
 import java.util.*;
 
 public class Server extends Thread
 {
     private ServerSocket serverSocket;
     private Socket socket;
+    
     // streams for communication to client
+    private InputStream is;
     private OutputStream os;
     private PrintWriter toClient;
+    private BufferedReader fromClient;
+    
     // use a high numbered non-dedicated port
     private static final int PORT_NUMBER = 3000;
     private static final String MESSAGE_TO_CLIENT = "Hello client. This is the server.";
     private Set<Vote> votes;
+    private boolean keepRunning;
 
     /*
      * Constructor
@@ -41,6 +43,7 @@ public class Server extends Thread
         votes.add(new Vote("Issue 2"));
         votes.add(new Vote("Issue 3"));
         
+        keepRunning = true;
         System.out.println("...Server starting up");
 
         try
@@ -64,16 +67,18 @@ public class Server extends Thread
     {
         try
         {
-            // wait for a connection request
-            socket = serverSocket.accept();
-            System.out.println("...Connection established");
+            while (keepRunning) {
+                // wait for a connection request
+                socket = serverSocket.accept();
+                System.out.println("...Connection established");
 
-            openStreams();
+                openStreams();
 
-            processHello();
+                processClientRequest();
 
-            closeStreams();
-            socket.close();
+                closeStreams();
+                socket.close();
+            }
         }
         catch (IOException e)
         {
@@ -87,11 +92,17 @@ public class Server extends Thread
      * did say something as part of the Hello interaction, the server
      * would need to deal with it. 
      */
-    private void processHello()
+    private void processClientRequest() throws IOException
     {
-        System.out.println("Server is executing its hello method");
-        toClient.println(MESSAGE_TO_CLIENT);
-        System.out.println("done talking to client in hello method");
+        System.out.println("Server is processing client request");
+        
+        while (fromClient.readLine().equalsIgnoreCase("QUIT")) {
+            if (fromClient.readLine().equalsIgnoreCase("HELLO")) {
+                toClient.println("Hello client, how are you?");
+            }
+        }
+        
+        System.out.println("Done processing client request");
     }
 
     /**
@@ -100,8 +111,11 @@ public class Server extends Thread
     private void openStreams() throws IOException
     {
         final boolean AUTO_FLUSH = true;
+        is = socket.getInputStream();
         os = socket.getOutputStream();
         toClient = new PrintWriter(os, AUTO_FLUSH);
+        fromClient = new BufferedReader(new InputStreamReader(is));
+        
         System.out.println("...Streams set up");
     }
 
@@ -111,8 +125,17 @@ public class Server extends Thread
     private void closeStreams() throws IOException
     {
         toClient.close();
+        fromClient.close();
         os.close();
+        is.close();
         System.out.println("...Streams closed down");
+    }
+    
+    /**
+     * Ends server thread.
+     */
+    public void quit() {
+        keepRunning = false;
     }
     
     /**
@@ -120,6 +143,13 @@ public class Server extends Thread
      */
     public Set<Vote> getVotes() {
         return votes;
+    }
+    
+    /**
+     * Inner class to define a client thread.
+     */
+    private class ClientThread extends Thread {
+        
     }
 }
 

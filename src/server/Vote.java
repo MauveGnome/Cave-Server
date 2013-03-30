@@ -1,5 +1,6 @@
 package server;
 
+import java.io.Serializable;
 import java.util.*;
 
 /**
@@ -10,7 +11,7 @@ import java.util.*;
  * @author Sam Beed B0632953
  */
 
-public class Vote {
+public class Vote implements Serializable {
     
     String question;
     Map<String, Integer> answers;
