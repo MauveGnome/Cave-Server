@@ -28,7 +28,6 @@ public class Server extends Thread
     
     // use a high numbered non-dedicated port
     private static final int PORT_NUMBER = 3000;
-    private static final String MESSAGE_TO_CLIENT = "Hello client. This is the server.";
     private Set<Vote> votes;
     private boolean keepRunning;
 
@@ -87,18 +86,29 @@ public class Server extends Thread
     }
 
     /**
-     * An example method that completes a single interaction with a client
-     * In this case, the client doesn't say anything. If the client
-     * did say something as part of the Hello interaction, the server
-     * would need to deal with it. 
+     * 
      */
     private void processClientRequest() throws IOException
     {
         System.out.println("Server is processing client request");
         
-        while (fromClient.readLine().equalsIgnoreCase("QUIT")) {
-            if (fromClient.readLine().equalsIgnoreCase("HELLO")) {
+        while (keepRunning) {
+            String request = fromClient.readLine();
+            
+            if (request.equalsIgnoreCase("HELLO")) {
                 toClient.println("Hello client, how are you?");
+            }
+            
+            if (request.equalsIgnoreCase("GET_VOTES")) {
+                toClient.println("You requested votes");
+            }
+            
+            if (request.equalsIgnoreCase("SUBMIT")) {
+                toClient.println("You tried to submit a vote");
+            }
+            
+            if (request.equalsIgnoreCase("QUIT")) {
+                quit();
             }
         }
         
