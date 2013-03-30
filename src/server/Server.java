@@ -28,7 +28,7 @@ public class Server extends Thread
     
     // use a high numbered non-dedicated port
     private static final int PORT_NUMBER = 3000;
-    private Set<Vote> votes;
+    private HashSet<Vote> votes;
     private boolean keepRunning;
 
     /*
@@ -36,12 +36,6 @@ public class Server extends Thread
      */
     public Server()
     {
-        //Test vote collection.
-        votes = new HashSet<Vote>();
-        votes.add(new Vote("Issue 1"));
-        votes.add(new Vote("Issue 2"));
-        votes.add(new Vote("Issue 3"));
-        
         keepRunning = true;
         System.out.println("...Server starting up");
 
@@ -49,11 +43,18 @@ public class Server extends Thread
         {
             // create a ServerSocket object to listen on the port
             serverSocket = new ServerSocket(PORT_NUMBER);
+            
+            loadVotes();
         }
-        catch (IOException e)
+        catch (FileNotFoundException ex) {
+            System.out.println("File not found: " + ex.getMessage());
+        }
+        catch (IOException ex)
         {
-            System.out.println("Trouble with ServerSocket on port " + PORT_NUMBER
-                    + ": " + e);
+            System.out.println("IO Error: " + ex.getMessage());
+        }
+        catch (ClassNotFoundException ex) {
+            System.out.println("Class not found :" + ex.getMessage());
         }
     }
 
@@ -105,6 +106,7 @@ public class Server extends Thread
             
             if (request.equalsIgnoreCase("SUBMIT")) {
                 toClient.println("You tried to submit a vote");
+                saveVotes();
             }
             
             if (request.equalsIgnoreCase("QUIT")) {
@@ -142,10 +144,28 @@ public class Server extends Thread
     }
     
     /**
-     * Ends server thread.
+     * 
      */
-    public void quit() {
-        keepRunning = false;
+    private void saveVotes() throws FileNotFoundException, IOException {
+        //Deletes file before saving new data.
+        File f = new File("votedatabase.sav");
+        f.delete();
+        
+        FileOutputStream fOut = new FileOutputStream(f);
+        ObjectOutputStream objOut = new ObjectOutputStream(fOut);
+                
+        objOut.writeObject(votes);
+    }
+    
+    /**
+     * 
+     */
+    private void loadVotes() throws FileNotFoundException, IOException, ClassNotFoundException {
+        File f = new File("votedatabase.sav");
+        FileInputStream fIn = new FileInputStream(f);
+        ObjectInputStream objIn = new ObjectInputStream(fIn);
+        
+        votes = (HashSet<Vote>) objIn.readObject();
     }
     
     /**
@@ -154,6 +174,13 @@ public class Server extends Thread
     public Set<Vote> getVotes() {
         return votes;
     }
+    
+     /**
+     * Ends server thread.
+     */
+    public void quit() {
+        keepRunning = false;
+    }   
     
     /**
      * Inner class to define a client thread.
