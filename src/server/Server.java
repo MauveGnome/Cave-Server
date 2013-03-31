@@ -23,8 +23,11 @@ public class Server extends Thread
     // streams for communication to client
     private InputStream is;
     private OutputStream os;
+    private ObjectOutputStream objOS;
     private PrintWriter toClient;
     private BufferedReader fromClient;
+    
+
     
     // use a high numbered non-dedicated port
     private static final int PORT_NUMBER = 3000;
@@ -101,7 +104,8 @@ public class Server extends Thread
             }
             
             if (request.equalsIgnoreCase("GET_VOTES")) {
-                toClient.println("You requested votes");
+                //toClient.println("You requested votes");
+                sendVotes();
             }
             
             if (request.equalsIgnoreCase("SUBMIT")) {
@@ -125,6 +129,7 @@ public class Server extends Thread
         final boolean AUTO_FLUSH = true;
         is = socket.getInputStream();
         os = socket.getOutputStream();
+        objOS = new ObjectOutputStream(os);
         toClient = new PrintWriter(os, AUTO_FLUSH);
         fromClient = new BufferedReader(new InputStreamReader(is));
         
@@ -140,6 +145,7 @@ public class Server extends Thread
         fromClient.close();
         os.close();
         is.close();
+        objOS.close();
         System.out.println("...Streams closed down");
     }
     
@@ -166,6 +172,25 @@ public class Server extends Thread
         ObjectInputStream objIn = new ObjectInputStream(fIn);
         
         votes = (HashSet<Vote>) objIn.readObject();
+    }
+    
+    /**
+     * 
+     */
+    private void sendVotes() {
+        HashMap<String, Map<String, Integer>> output =
+                new HashMap<String, Map<String, Integer>>();
+        
+        for (Vote eachVote : votes) {
+            output.put(eachVote.getQuestion(), eachVote.getAnswers());
+        }
+        
+        try {
+            objOS.writeObject(output);
+        }
+        catch (IOException ex) {
+            System.out.println("IO Exception: " + ex.getMessage());
+        }
     }
     
     /**

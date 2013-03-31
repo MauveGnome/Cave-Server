@@ -19,11 +19,21 @@ public class Vote implements Serializable {
     public Vote(String newQuestion) {
         question = newQuestion;
         answers = new HashMap<String, Integer>();
-        
-        //Test Data
-        addAnswer("Option A");
-        addAnswer("Option B");
-        addAnswer("Option C");
+    }
+    
+    /**
+     * Returns the question.
+     * @return 
+     */
+    public String getQuestion() {
+        return question;
+    }
+    
+    /**
+     * Returns the answers.
+     */
+    public Map<String, Integer> getAnswers() {
+        return answers;
     }
     
     /**
@@ -40,6 +50,17 @@ public class Vote implements Serializable {
      */
     public void voteOnAnswer(String currentVote) {
         answers.put(currentVote, answers.get(currentVote) + 1);
+    }
+    
+    /**
+     * To String.
+     * @return 
+     */
+    @Override
+    public String toString() {
+        String output = question + "," + answers.toString();
+        
+        return output;
     }
     
 }
