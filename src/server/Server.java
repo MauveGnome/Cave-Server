@@ -31,7 +31,7 @@ public class Server extends Thread
     
     // use a high numbered non-dedicated port
     private static final int PORT_NUMBER = 3000;
-    private HashSet<Vote> votes;
+    private HashMap<String, Map<String, Integer>> votes;
     private boolean keepRunning;
 
     /*
@@ -171,22 +171,16 @@ public class Server extends Thread
         FileInputStream fIn = new FileInputStream(f);
         ObjectInputStream objIn = new ObjectInputStream(fIn);
         
-        votes = (HashSet<Vote>) objIn.readObject();
+        votes = (HashMap<String, Map<String, Integer>>) objIn.readObject();
     }
     
     /**
      * 
      */
     private void sendVotes() {
-        HashMap<String, Map<String, Integer>> output =
-                new HashMap<String, Map<String, Integer>>();
-        
-        for (Vote eachVote : votes) {
-            output.put(eachVote.getQuestion(), eachVote.getAnswers());
-        }
-        
         try {
-            objOS.writeObject(output);
+            System.out.println(votes.toString());
+            objOS.writeObject(votes);
         }
         catch (IOException ex) {
             System.out.println("IO Exception: " + ex.getMessage());
@@ -196,7 +190,7 @@ public class Server extends Thread
     /**
      * Returns the vote collection.
      */
-    public Set<Vote> getVotes() {
+    public HashMap<String, Map<String, Integer>> getVotes() {
         return votes;
     }
     
