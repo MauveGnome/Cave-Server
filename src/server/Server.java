@@ -27,11 +27,8 @@ public class Server extends Thread
     private PrintWriter toClient;
     private BufferedReader fromClient;
     
-
-    
-    // use a high numbered non-dedicated port
     private static final int PORT_NUMBER = 3000;
-    private HashMap<String, Map<String, Integer>> votes;
+    private HashMap<String, HashMap<String, Integer>> votes;
     private boolean keepRunning;
 
     /*
@@ -107,9 +104,9 @@ public class Server extends Thread
                 //toClient.println("You requested votes");
                 sendVotes();
             }
-            
-            if (request.equalsIgnoreCase("SUBMIT")) {
+            if (request.startsWith("SUBMIT")) {
                 toClient.println("You tried to submit a vote");
+                
                 saveVotes();
             }
             
@@ -171,7 +168,7 @@ public class Server extends Thread
         FileInputStream fIn = new FileInputStream(f);
         ObjectInputStream objIn = new ObjectInputStream(fIn);
         
-        votes = (HashMap<String, Map<String, Integer>>) objIn.readObject();
+        votes = (HashMap<String, HashMap<String, Integer>>) objIn.readObject();
     }
     
     /**
@@ -179,7 +176,6 @@ public class Server extends Thread
      */
     private void sendVotes() {
         try {
-            System.out.println(votes.toString());
             objOS.writeObject(votes);
         }
         catch (IOException ex) {
@@ -188,9 +184,18 @@ public class Server extends Thread
     }
     
     /**
+     * 
+     */
+    private void submitAnswer(String question, String answer) {
+        HashMap<String, Integer> answerMap = votes.get(question);
+        answerMap.put(answer, answerMap.get(answer) + 1);
+        votes.put(question, answerMap);
+    }
+    
+    /**
      * Returns the vote collection.
      */
-    public HashMap<String, Map<String, Integer>> getVotes() {
+    public HashMap<String, HashMap<String, Integer>> getVotes() {
         return votes;
     }
     
