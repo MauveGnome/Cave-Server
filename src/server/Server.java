@@ -94,23 +94,24 @@ public class Server extends Thread
         System.out.println("Server is processing client request");
         
         while (keepRunning) {
-            String request = fromClient.readLine();
+            String[] request = fromClient.readLine().split(",");
             
-            if (request.equalsIgnoreCase("HELLO")) {
+            if (request[0].equalsIgnoreCase("HELLO")) {
                 toClient.println("Hello client, how are you?");
             }
             
-            if (request.equalsIgnoreCase("GET_VOTES")) {
+            if (request[0].equalsIgnoreCase("GET_VOTES")) {
                 //toClient.println("You requested votes");
                 sendVotes();
             }
-            if (request.startsWith("SUBMIT")) {
+            if (request[0].equalsIgnoreCase("SUBMIT")) {
                 toClient.println("You tried to submit a vote");
+                submitAnswer(request[1], request[0]);
                 
                 saveVotes();
             }
             
-            if (request.equalsIgnoreCase("QUIT")) {
+            if (request[0].equalsIgnoreCase("QUIT")) {
                 quit();
             }
         }
